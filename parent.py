@@ -18,6 +18,6 @@ if len(sys.argv) == 2 and sys.argv[1] == "crash":
 else:
     print("Parent closing child's stdin", file=sys.stderr)
     child.stdin.close()
-    print("Parent sleeps", file=sys.stderr)
-    sleep(0.1)
+    print("Parent waits for child to exit", file=sys.stderr)
+    child.wait()
     print("Parent exiting", file=sys.stderr)
