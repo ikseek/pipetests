@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 from subprocess import Popen, PIPE
 from time import sleep
