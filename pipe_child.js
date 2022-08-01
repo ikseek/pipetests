@@ -18,7 +18,7 @@ function read_to_eof(err, n, bytes) {
 
 console.error("Child started with pipe r %s w %s", pipe_read, pipe_write);
 console.error("Child closing write side")
-fs.close(pipe_write, (err) => { if (err) console.error("Child failed to close write side");});
+fs.close(pipe_write, (err) => { if (err) console.error("Child failed to close write side: %s", err);});
 console.error("Child outputs dummy listen port")
 console.log("42");
 console.error("Child is waiting for EOF in pipe");
