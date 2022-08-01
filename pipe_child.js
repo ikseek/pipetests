@@ -5,9 +5,15 @@ let pipe_write = parseInt(process.argv[3]);
 
 function read_to_eof(err, n, bytes) {
     if (err) {
-        console.error("Child pipe read error %s", err);
+        if (err.code === 'EOF') {
+            console.error("Child reached pipe EOF as error, happens on windows");
+            console.error("Child terminating");
+            process.exit(0);
+        } else {
+            console.error("Child pipe read error %s", err);
+        }
     } else if (n === 0) {
-        console.error("Child reached pipe EOF");
+        console.error("Child reached pipe EOF normally");
         console.error("Child terminating");
         process.exit(0);
     } else {
