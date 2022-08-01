@@ -9,8 +9,8 @@ print("Child started with pipe handles r", read_side_handle, "w", write_side_han
 if sys.platform == "win32":
     import msvcrt
 
-    read_side_id = msvcrt.open_osfhandle(read_side_handle)
-    write_side_id = msvcrt.open_osfhandle(write_side_handle)
+    read_side_id = msvcrt.open_osfhandle(read_side_handle, os.O_RDONLY)
+    write_side_id = msvcrt.open_osfhandle(write_side_handle, os.O_APPEND)
 else:
     read_side_id = read_side_handle
     write_side_id = write_side_handle
