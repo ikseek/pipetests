@@ -18,5 +18,7 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python stdin_parent.py && python stdin_parent.py crash || true
-      - run: python pipe_parent.py && python pipe_parent.py crash || true
+      - run: python stdin_parent.py
+      - run: python stdin_parent.py crash || true
+      - run: python pipe_parent.py
+      - run: python pipe_parent.py crash || true
