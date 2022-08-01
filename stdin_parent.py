@@ -4,9 +4,8 @@ import sys
 from subprocess import Popen, PIPE
 from time import sleep
 
-python = sys.executable
 print("Parent starting child", file=sys.stderr)
-child = Popen([python, "stdin_child.py"], stdout=PIPE, stdin=PIPE)
+child = Popen(["node", "stdin_child.js"], stdout=PIPE, stdin=PIPE)
 print("Parent started the child, reading the port number", file=sys.stderr)
 port = int(child.stdout.readline())
 print("Parent received port number from child:", port, file=sys.stderr)
