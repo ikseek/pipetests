@@ -13,13 +13,18 @@ if sys.version_info[0] > 2:
     os.set_inheritable(write_side_id, True)
 
 print("Parent starting child", file=sys.stderr)
-child = Popen(["node", "pipe_child.js", str(read_side_id), str(write_side_id)], stdout=PIPE, close_fds=False)
+if sys.argv[1] == "py":
+    child_cmd = [sys.executable, "pipe_child.py"]
+else:
+    child_cmd = ["node", "pipe_child.js"]
+
+child = Popen(child_cmd + [str(read_side_id), str(write_side_id)], stdout=PIPE, close_fds=False)
 print("Parent started the child, reading the port number", file=sys.stderr)
 port = int(child.stdout.readline())
 print("Parent received port number from child:", port, file=sys.stderr)
 print("Parent goes to sleep", file=sys.stderr)
 sleep(1)
-if len(sys.argv) == 2 and sys.argv[1] == "crash":
+if len(sys.argv) == 3 and sys.argv[2] == "crash":
     print("Parent crashing", file=sys.stderr)
     raise Exception
 else:
