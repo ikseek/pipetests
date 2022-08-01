@@ -20,7 +20,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python stdin_parent.py
       - run: python stdin_parent.py crash || true
-      - run: python pipe_parent.py js
-      - run: python pipe_parent.py js crash || true
       - run: python pipe_parent.py py
       - run: python pipe_parent.py py crash || true
+      - run: python pipe_parent.py js
+      - run: python pipe_parent.py js crash || true
