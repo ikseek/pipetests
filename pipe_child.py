@@ -2,9 +2,19 @@ from __future__ import print_function
 import os
 import sys
 
-read_side_id = int(sys.argv[1])
-write_side_id = int(sys.argv[2])
-print("Child started with pipe r", read_side_id, "w", write_side_id, file=sys.stderr)
+read_side_handle = int(sys.argv[1])
+write_side_handle = int(sys.argv[2])
+
+print("Child started with pipe handles r", read_side_handle, "w", write_side_handle, file=sys.stderr)
+if sys.platform == "win32":
+    import msvcrt
+
+    read_side_id = msvcrt.open_osfhandle(read_side_handle)
+    write_side_id = msvcrt.open_osfhandle(write_side_handle)
+else:
+    read_side_id = read_side_handle
+    write_side_id = write_side_handle
+print("Child pipe ids r", read_side_id, "w", write_side_id, file=sys.stderr)
 print("Child attaching to the read side of the pipe", file=sys.stderr)
 read_side = os.fdopen(read_side_id, "r")
 print("Child closing write side", file=sys.stderr)
