@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 from subprocess import Popen
@@ -5,8 +6,9 @@ from time import sleep
 
 read_side_id, write_side_id = os.pipe()
 print("Parent created pipe: r", read_side_id, "w", write_side_id)
-write_file_object = os.fdopen(write_side_id)
-os.set_inheritable(read_side_id, True)
+write_file_object = os.fdopen(write_side_id, "w")
+if sys.version_info[0] > 2:
+    os.set_inheritable(read_side_id, True)
 
 python = sys.executable
 print("Parent starting child")
