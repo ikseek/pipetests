@@ -6,7 +6,9 @@ from time import sleep
 
 read_side_id, write_side_id = os.pipe()
 print("Parent created pipe: r", read_side_id, "w", write_side_id, file=sys.stderr)
+read_file_object = os.fdopen(read_side_id, "r")
 write_file_object = os.fdopen(write_side_id, "w")
+print("Pipe handles: r", read_file_object.fileno(), "w", write_file_object.fileno() , file=sys.stderr)
 if sys.version_info[0] > 2:
     print("Parent makes pipe descriptors inheritable", file=sys.stderr)
     os.set_inheritable(read_side_id, True)
@@ -18,7 +20,7 @@ if sys.argv[1] == "py":
 else:
     child_cmd = ["node", "pipe_child.js"]
 
-child = Popen(child_cmd + [str(read_side_id), str(write_side_id)], stdout=PIPE, close_fds=False)
+child = Popen(child_cmd + [str(read_file_object.fileno()), str(write_file_object.fileno())], stdout=PIPE, close_fds=False)
 print("Parent started the child, reading the port number", file=sys.stderr)
 port = int(child.stdout.readline())
 print("Parent received port number from child:", port, file=sys.stderr)
