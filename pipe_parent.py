@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import sys
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from time import sleep
 
 read_side_id, write_side_id = os.pipe()
@@ -13,7 +13,10 @@ if sys.version_info[0] > 2:
     os.set_inheritable(write_side_id, True)
 
 print("Parent starting child", file=sys.stderr)
-child = Popen(["node", "pipe_child.js", str(read_side_id), str(write_side_id)], close_fds=False)
+child = Popen(["node", "pipe_child.js", str(read_side_id), str(write_side_id)], stdout=PIPE, close_fds=False)
+print("Parent started the child, reading the port number", file=sys.stderr)
+port = int(child.stdout.readline())
+print("Parent received port number from child:", port, file=sys.stderr)
 print("Parent goes to sleep", file=sys.stderr)
 sleep(1)
 if len(sys.argv) == 2 and sys.argv[1] == "crash":
