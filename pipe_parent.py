@@ -14,8 +14,12 @@ if sys.version_info[0] > 2:
 
 if sys.platform == "win32":
     import msvcrt
+    from ctypes import windll
+    from ctypes.wintypes import DWORD
     read_side_handle = msvcrt.get_osfhandle(read_side_id)
     write_side_handle = msvcrt.get_osfhandle(write_side_id)
+    windll.kernel32.SetHandleInformation(read_side_handle, DWORD(1), DWORD(1))
+    windll.kernel32.SetHandleInformation(write_side_handle, DWORD(1), DWORD(1))
 else:
     read_side_handle, write_side_handle = read_side_id, write_side_id
 print("Parent pipe handles: r", read_side_handle, "w", write_side_handle, file=sys.stderr)
