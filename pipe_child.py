@@ -11,6 +11,7 @@ print("Child closing write side", file=sys.stderr)
 os.close(write_side_id)
 print("Child outputs dummy listen port", file=sys.stderr)
 print("42")
+sys.stdout.flush()
 print("Child is waiting for EOF in pipe", file=sys.stderr)
 read_side.read()
 print("Child terminating", file=sys.stderr)  # You should defenitely see this line
