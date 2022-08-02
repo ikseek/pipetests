@@ -3,6 +3,7 @@ from __future__ import print_function
 import sys
 from subprocess import Popen, PIPE
 from time import sleep
+import ctypes
 
 print("Parent starting child", file=sys.stderr)
 child = Popen(["node", "stdin_child.js"], stdout=PIPE, stdin=PIPE)
@@ -13,7 +14,8 @@ print("Parent goes to sleep", file=sys.stderr)
 sleep(2)
 if len(sys.argv) == 2 and sys.argv[1] == "crash":
     print("Parent crashing", file=sys.stderr)
-    raise Exception
+    str(ctypes.cast(42, ctypes.py_object))  # segfault
+    print("Parent should not print it, should crash")
 else:
     print("Parent closing child's stdin", file=sys.stderr)
     child.stdin.close()

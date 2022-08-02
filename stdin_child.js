@@ -26,3 +26,8 @@ console.error("Child outputs dummy listen port")
 console.log("42");
 console.error("Child is waiting for EOF in pipe");
 fs.read(pipe_read, read_to_eof);
+
+function should_not_run() {
+  console.error("Child should not print it, should terminate earlier");
+}
+setTimeout(should_not_run, 5000);
