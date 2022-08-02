@@ -4,7 +4,7 @@ on:
 
 jobs:
 
-  tests:
+  python-tests:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
@@ -20,3 +20,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python stdin_parent.py
       - run: python stdin_parent.py crash || true
+
+
+  ruby-tests:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        ruby-version: [ '2.6', "2.7" ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+      - run: ruby stdin_parent.rb
+      - run: ruby stdin_parent.rb crash || true
