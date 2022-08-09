@@ -13,7 +13,7 @@ def message(text):
 
 
 def start_and_use_child():
-    message("Worker: starting child.py")
+    message("Worker: %d started, starting child.py" % os.getpid())
     sys.stderr.flush()
     port = int(check_output([sys.executable, "child.py"]))
     message("Worker: child started on port {}, sleep 1 sec".format(port))
