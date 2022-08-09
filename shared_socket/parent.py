@@ -7,8 +7,13 @@ from socket import create_connection
 from time import sleep
 
 
+def message(text):
+    sys.stderr.write(text + "\n")
+    sys.stderr.flush()
+
+
 def start_and_use_child():
-    print("Worker: starting child.py", file=sys.stderr)
+    message("Worker: starting child.py")
     sys.stderr.flush()
     port = int(check_output([sys.executable, "child.py"]))
 
@@ -16,9 +21,9 @@ def start_and_use_child():
     for i in range(5):
         data_connection = create_connection(("localhost", port))
         reader, writer = data_connection.makefile('rb', 1), data_connection.makefile('wb', 1)
-        message = b"worker %d test %d\n" % (os.getpid(), i)
-        writer.write(message)
-        assert reader.readline() == message
+        msg = b"worker %d test %d\n" % (os.getpid(), i)
+        writer.write(msg)
+        assert reader.readline() == msg
         sleep(1)
         writer.write(b"done\n")
         assert reader.read() == b"done\n"
@@ -28,16 +33,16 @@ if 'worker' in sys.argv:
     start_and_use_child()
 else:
     workers = [Popen([sys.executable, sys.argv[0], 'worker']) for _ in range(5)]
-    print("Parent: started workers, sleeping", file=sys.stderr)
-    sleep(1)
+    message("Parent: started workers, sleeping")
     if 'kill' in sys.argv:
-        print("Parent: violently killing all the workers", file=sys.stderr)
+        sleep(2)
+        message("Parent: violently killing all the workers")
         for worker in workers:
             worker.kill()
     else:
-        print("Parent: waiting for workers to finish", file=sys.stderr)
+        message("Parent: waiting for workers to finish")
         for worker in workers:
             worker.wait()
-    print("Parent: workers done, child should terminate", file=sys.stderr)
+    message("Parent: workers done, child should terminate")
     sleep(1)
-    print("Parent: exiting", file=sys.stderr)
+    message("Parent: exiting")

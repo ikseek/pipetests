@@ -16,6 +16,11 @@ except ImportError:
     FileNotFoundError = IOError
 
 
+def message(text):
+    sys.stderr.write(text + "\n")
+    sys.stderr.flush()
+
+
 class EchoServer(ThreadingTCPServer):
     allow_reuse_address = True
     request_queue_size = 100
@@ -37,15 +42,15 @@ class EchoRequest(StreamRequestHandler):
                 if line == b'done\n':
                     break
                 else:
-                    print("Server serving", line.decode().strip(), file=sys.stderr)
+                    message("Server serving " + line.decode().strip())
         except BaseException as e:
-            print("Child: client failed with", e, file=sys.stderr)
+            message("Child: client failed with " + str(e))
 
         with EchoServer.active_clients_lock:
             EchoServer.active_clients -= 1
             last_client_gone = EchoServer.active_clients == 0
         if last_client_gone:
-            print("Child: last client gone, terminating", file=sys.stderr)
+            message("Child: last client gone, terminating")
             self.server.shutdown()
 
 
@@ -54,11 +59,11 @@ if 'serve' in sys.argv:
         portfile = os.open('child.port', os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         try:
             server = EchoServer(("localhost", 2222))
-            print("Child: started server on port 2222", file=sys.stderr)
+            message("Child: started server on port 2222")
             os.write(portfile, b'2222\n')
             sleep(1)
             server.serve_forever()
-            print("Child: quit server on port 2222", file=sys.stderr)
+            message("Child: quit server on port 2222")
         finally:
             os.close(portfile)
             os.remove('child.port')
