@@ -68,6 +68,7 @@ if 'serve' in sys.argv:
             os.close(portfile)
             os.remove('child.port')
     except FileExistsError:
+        message("Child: portfile exists, skip starting")
         pass
 else:
     if not os.path.exists('child.port'):
