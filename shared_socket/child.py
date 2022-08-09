@@ -73,6 +73,9 @@ if 'serve' in sys.argv:
 else:
     if not os.path.exists('child.port'):
         Popen([sys.executable, sys.argv[0], "serve"], stdin=DEVNULL, stdout=DEVNULL)
+        if type(DEVNULL) is not int:
+            message("Child: closing devnull")
+            DEVNULL.close()
     else:
         message("Child: portfile exists, skip starting")
     port = None
