@@ -1,10 +1,19 @@
 from __future__ import print_function
 import sys
 import os
-from socketserver import ThreadingTCPServer, StreamRequestHandler
 from threading import Lock
-from subprocess import Popen, DEVNULL
+from subprocess import Popen
 from time import sleep
+
+try:
+    from socketserver import ThreadingTCPServer, StreamRequestHandler
+    from subprocess import DEVNULL
+except ImportError:
+    from SocketServer import ThreadingTCPServer, StreamRequestHandler
+
+    DEVNULL = open(os.devnull, 'w')
+    FileExistsError = OSError
+    FileNotFoundError = IOError
 
 
 class EchoServer(ThreadingTCPServer):
@@ -14,29 +23,30 @@ class EchoServer(ThreadingTCPServer):
     active_clients_lock = Lock()
 
     def __init__(self, address):
-        super(EchoServer, self).__init__(address, EchoServer.Request)
+        ThreadingTCPServer.__init__(self, address, EchoRequest)
 
-    class Request(StreamRequestHandler):
-        def handle(self) -> None:
-            with EchoServer.active_clients_lock:
-                EchoServer.active_clients += 1
 
-            try:
-                for line in self.rfile:
-                    self.wfile.write(line)
-                    if line == b'done\n':
-                        break
-                    else:
-                        print("Server serving", line.decode().strip(), file=sys.stderr)
-            except BaseException as e:
-                print("Child: client failed with", e, file=sys.stderr)
+class EchoRequest(StreamRequestHandler):
+    def handle(self):
+        with EchoServer.active_clients_lock:
+            EchoServer.active_clients += 1
 
-            with EchoServer.active_clients_lock:
-                EchoServer.active_clients -= 1
-                last_client_gone = EchoServer.active_clients == 0
-            if last_client_gone:
-                print("Child: last client gone, terminating", file=sys.stderr)
-                self.server.shutdown()
+        try:
+            for line in self.rfile:
+                self.wfile.write(line)
+                if line == b'done\n':
+                    break
+                else:
+                    print("Server serving", line.decode().strip(), file=sys.stderr)
+        except BaseException as e:
+            print("Child: client failed with", e, file=sys.stderr)
+
+        with EchoServer.active_clients_lock:
+            EchoServer.active_clients -= 1
+            last_client_gone = EchoServer.active_clients == 0
+        if last_client_gone:
+            print("Child: last client gone, terminating", file=sys.stderr)
+            self.server.shutdown()
 
 
 if 'serve' in sys.argv:
@@ -55,7 +65,7 @@ if 'serve' in sys.argv:
         pass
 else:
     if not os.path.exists('child.port'):
-        Popen([sys.executable, sys.argv[0], "serve"], stdout=DEVNULL, stdin=DEVNULL)
+        Popen([sys.executable, sys.argv[0], "serve"], stdout=DEVNULL)
     port = None
     while not port:
         try:
@@ -64,4 +74,5 @@ else:
                 port = portfile.readline()
         except FileNotFoundError:
             pass
-    print(port, flush=True)
+    print(port)
+    sys.stdout.flush()
