@@ -58,7 +58,7 @@ if 'serve' in sys.argv:
     try:
         portfile = os.open('child.port', os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         try:
-            server = EchoServer(("localhost", 2222))
+            server = EchoServer(("127.0.0.1", 2222))
             message("Child: started server on port 2222")
             os.write(portfile, b'2222\n')
             sleep(1)

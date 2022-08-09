@@ -16,10 +16,10 @@ def start_and_use_child():
     message("Worker: starting child.py")
     sys.stderr.flush()
     port = int(check_output([sys.executable, "child.py"]))
-    owning_connection = create_connection(("localhost", port))
+    owning_connection = create_connection(("127.0.0.1", port))
 
     for i in range(5):
-        data_connection = create_connection(("localhost", port))
+        data_connection = create_connection(("127.0.0.1", port))
         reader, writer = data_connection.makefile('rb', 1), data_connection.makefile('wb', 1)
         msg = b"worker %d test %d\n" % (os.getpid(), i)
         writer.write(msg)
