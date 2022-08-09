@@ -44,7 +44,7 @@ class EchoRequest(StreamRequestHandler):
                 else:
                     message("Server serving " + line.decode().strip())
         except BaseException as e:
-            message("Child: client failed with " + repr(e))
+            message("Child: client failed with " + type(e).__name__ + " " + repr(e))
 
         with EchoServer.active_clients_lock:
             EchoServer.active_clients -= 1
