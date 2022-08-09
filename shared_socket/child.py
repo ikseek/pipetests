@@ -8,10 +8,12 @@ from time import sleep
 try:
     from socketserver import ThreadingTCPServer, StreamRequestHandler
     from subprocess import DEVNULL
+    WDEVNULL = DEVNULL
 except ImportError:
     from SocketServer import ThreadingTCPServer, StreamRequestHandler
 
-    DEVNULL = open(os.devnull, 'rw')
+    DEVNULL = open(os.devnull, 'r')
+    WDEVNULL = open(os.devnull, 'w')
     FileExistsError = OSError
     FileNotFoundError = IOError
 
@@ -72,10 +74,11 @@ if 'serve' in sys.argv:
         pass
 else:
     if not os.path.exists('child.port'):
-        Popen([sys.executable, sys.argv[0], "serve"], stdin=DEVNULL, stdout=DEVNULL)
+        Popen([sys.executable, sys.argv[0], "serve"], stdin=DEVNULL, stdout=WDEVNULL)
         if type(DEVNULL) is not int:
             message("Child: closing devnull")
             DEVNULL.close()
+            WDEVNULL.close()
     else:
         message("Child: portfile exists, skip starting")
     port = None
