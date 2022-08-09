@@ -11,7 +11,7 @@ try:
 except ImportError:
     from SocketServer import ThreadingTCPServer, StreamRequestHandler
 
-    DEVNULL = open(os.devnull, 'w')
+    DEVNULL = open(os.devnull, 'rw')
     FileExistsError = OSError
     FileNotFoundError = IOError
 
@@ -72,7 +72,7 @@ if 'serve' in sys.argv:
         pass
 else:
     if not os.path.exists('child.port'):
-        Popen([sys.executable, sys.argv[0], "serve"], close_fds=True)
+        Popen([sys.executable, sys.argv[0], "serve"], stdin=DEVNULL, stdout=DEVNULL)
     else:
         message("Child: portfile exists, skip starting")
     port = None
