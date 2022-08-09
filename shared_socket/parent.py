@@ -53,5 +53,5 @@ else:
         for worker in workers:
             worker.wait()
     message("Parent: workers done, child should terminate")
-    sleep(1)
+    sleep(2)
     message("Parent: exiting")
