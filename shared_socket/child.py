@@ -60,6 +60,7 @@ if 'serve' in sys.argv:
             server.serve_forever()
             print("Child: quit server on port 2222", file=sys.stderr)
         finally:
+            os.close(portfile)
             os.remove('child.port')
     except FileExistsError:
         pass
