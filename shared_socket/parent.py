@@ -16,6 +16,8 @@ def start_and_use_child():
     message("Worker: starting child.py")
     sys.stderr.flush()
     port = int(check_output([sys.executable, "child.py"]))
+    message("Worker: child started on port {}, sleep 1 sec".format(port))
+    sleep(1)
     owning_connection = create_connection(("127.0.0.1", port))
 
     for i in range(5):
