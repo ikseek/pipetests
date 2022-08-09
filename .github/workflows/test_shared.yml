@@ -1,0 +1,25 @@
+name: Test shared socket on all platforms
+on:
+  push:
+
+jobs:
+
+  python-tests:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        python-version: [ '2.7', '3.6', '3.10' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python parent.py
+        working-directory: shared_socket
+      - run: python parent.py kill
+        working-directory: shared_socket
+
