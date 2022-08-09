@@ -1,7 +1,6 @@
 from __future__ import print_function
 import sys
 import os
-from itertools import count
 from socketserver import ThreadingTCPServer, StreamRequestHandler
 from threading import Lock
 from subprocess import Popen, DEVNULL
@@ -10,16 +9,15 @@ from time import sleep
 
 class EchoServer(ThreadingTCPServer):
     allow_reuse_address = True
+    request_queue_size = 100
     active_clients = 0
     active_clients_lock = Lock()
-    request_count = count()
 
     def __init__(self, address):
         super(EchoServer, self).__init__(address, EchoServer.Request)
 
     class Request(StreamRequestHandler):
         def handle(self) -> None:
-            print("Child: handling request", next(EchoServer.request_count), file=sys.stderr)
             with EchoServer.active_clients_lock:
                 EchoServer.active_clients += 1
 
@@ -28,6 +26,8 @@ class EchoServer(ThreadingTCPServer):
                     self.wfile.write(line)
                     if line == b'done\n':
                         break
+                    else:
+                        print("Server serving", line.decode().strip(), file=sys.stderr)
             except BaseException as e:
                 print("Child: client failed with", e, file=sys.stderr)
 
@@ -39,39 +39,29 @@ class EchoServer(ThreadingTCPServer):
                 self.server.shutdown()
 
 
-def read_portfile():
-    try:
-        with open('child.port', 'r') as portfile:
-            for _ in range(10):
-                line = portfile.read()
-                if line:
-                    return line
-                sleep(0.1)
-            else:
-                raise Exception("Server didn't output port")
-    except FileNotFoundError:
-        pass
-    return None
-
-
 if 'serve' in sys.argv:
     try:
-        server = EchoServer(("localhost", 2222))
-    except OSError:
-        exit(0)
-    print("Child: started server on port 2222", file=sys.stderr)
-    with open('child.port', 'w') as portfile:
-        portfile.write("2222")
-    try:
-        server.serve_forever()
-    finally:
-        print("Child: quit server on port 2222", file=sys.stderr)
-        os.remove('child.port')
+        portfile = os.open('child.port', os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        try:
+            server = EchoServer(("localhost", 2222))
+            print("Child: started server on port 2222", file=sys.stderr)
+            os.write(portfile, b'2222\n')
+            sleep(1)
+            server.serve_forever()
+            print("Child: quit server on port 2222", file=sys.stderr)
+        finally:
+            os.remove('child.port')
+    except FileExistsError:
+        pass
 else:
-    port = read_portfile()
-    if not port:
-        process = Popen([sys.executable, sys.argv[0], "serve"], stdout=DEVNULL, stdin=DEVNULL)
-        while not port:
+    if not os.path.exists('child.port'):
+        Popen([sys.executable, sys.argv[0], "serve"], stdout=DEVNULL, stdin=DEVNULL)
+    port = None
+    while not port:
+        try:
             sleep(0.1)
-            port = read_portfile()
+            with open('child.port', 'r') as portfile:
+                port = portfile.readline()
+        except FileNotFoundError:
+            pass
     print(port, flush=True)
