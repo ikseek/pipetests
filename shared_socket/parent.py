@@ -6,9 +6,6 @@ from subprocess import check_output, Popen
 from socket import create_connection
 from time import sleep
 
-if sys.version_info < (3,):
-    ConnectionRefusedError = IOError
-
 
 def message(text):
     sys.stderr.write(text + "\n")
@@ -16,16 +13,10 @@ def message(text):
 
 
 def start_and_use_child():
-    try:
-        message("Worker: starting child.py")
-        sys.stderr.flush()
-        port = int(check_output([sys.executable, "child.py"]))
-        owning_connection = create_connection(("localhost", port))
-    except ConnectionRefusedError:
-        message("Worker: second attempt of starting child.py")
-        sys.stderr.flush()
-        port = int(check_output([sys.executable, "child.py"]))
-        owning_connection = create_connection(("localhost", port))
+    message("Worker: starting child.py")
+    sys.stderr.flush()
+    port = int(check_output([sys.executable, "child.py"]))
+    owning_connection = create_connection(("localhost", port))
 
     for i in range(5):
         data_connection = create_connection(("localhost", port))
