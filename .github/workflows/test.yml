@@ -46,10 +46,7 @@ jobs:
     container: "alpine:latest"
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - run: apk add gcc libffi-dev make musl-dev py3-pip python3-dev && ln -s /usr/bin/python3 /usr/bin/python
+      - run: apk add gcc libffi-dev make musl-dev npm py3-pip python3-dev && ln -s /usr/bin/python3 /usr/bin/python
       - run: python stdin_parent.py
       - run: python stdin_parent.py crash || true
 
