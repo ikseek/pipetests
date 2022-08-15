@@ -1,6 +1,6 @@
 name: Test shared socket on all platforms
 on:
-  push:
+  workflow_dispatch:
 
 jobs:
 
